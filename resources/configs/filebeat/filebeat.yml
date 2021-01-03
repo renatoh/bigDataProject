@@ -1,0 +1,35 @@
+filebeat.inputs:
+
+
+##Filebeat processes each log file line-by-line
+##However it is possible that a singular Tomcat log entry might contain multiple lines in the form of a Java stack trace
+##To preserve the integrity of logs, we define a multiline pattern to process multiline stack traces as a single entry.
+
+  multiline.type: pattern
+  multiline.pattern: '^[[:space:]]'
+  multiline.negate: false
+  multiline.match: after
+  
+filebeat.config.modules.path: ${path.config}/modules.d/*.yml
+
+##Defining an elasticsearch output. 
+##For more options on ES output, refer to the documentation at
+##https://www.elastic.co/guide/en/beats/filebeat/current/elasticsearch-output.html
+output.elasticsearch:
+  hosts: http://localhost:9200/
+  
+  
+
+##By default, filebeat will send everything to the filebeat-7.9.2-<YYYY.MM.DD>-000001
+##Because we are shipping three different types of logs, it makes more sense to send them to different indices.
+##We will be splitting our indices based on the field type we set while processing the logs 
+  indices:
+    - index: "tomcat9-access-logs"
+      when.equals:
+        fields.type: "access_log"
+
+##The following lines are needed in order to set up different indices
+setup.ilm.enabled: false
+
+setup.template.name: "tomcat9"
+setup.template.pattern: "tomcat9-*"

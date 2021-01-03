@@ -1,0 +1,15 @@
+# Module: apache
+# Docs: https://www.elastic.co/guide/en/beats/filebeat/7.10/filebeat-module-apache.html
+- module: apache
+  # Access logs
+  access:
+    enabled: true
+    var.paths: ["/Users/renato/elastic/logs/apache*.log"]
+    ##The type:access_log will help us point these logs to the right direction 
+    input:
+      processors:
+        - add_fields:
+            target: fields
+            fields:
+              codec: plain
+              type: access_log
