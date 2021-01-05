@@ -13,8 +13,9 @@ from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
 from pyspark.sql import Row
 from pyspark.sql import SQLContext
-from pyspark.mllib.linalg import Vectors
-from pyspark.mllib.clustering import KMeans
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.clustering import KMeans
+from pyspark.ml.evaluation import ClusteringEvaluator
 
 conf = SparkConf().setAppName("Log Analyzer")
 sc = SparkContext(conf=conf)
@@ -45,12 +46,20 @@ def parse_apache_log_line(logline):
     )
 
 #train modell (based on REsponde Code and Content Size for simplicity)
-trainingData = sc.textFile(FILE_TRAINING_DATA)\
-  .map(parse_apache_log_line)\
-  .map(lambda parsed_line: (parsed_line.response_code, parsed_line.content_size))\
-  .map(lambda line: Vectors.dense([float(x) for x in line]))
+trainingData = sc.textFile('/Users/thomas/Downloads/logstream/apache2.log')\
+  .map(parse_apache_log_line)
+data = trainingData.toDF()
+assembler = VectorAssembler(inputCols=['response_code', 'content_size'], outputCol='features')
+output = assembler.transform(data)
+kmeans = KMeans().setK(2).setSeed(1)
+model = kmeans.fit(output)
+clusterCenters = model.clusterCenters()
 
-clusters = KMeans.train(trainingData, 2, maxIterations=10, initializationMode="random")
+#check model performacne by means of silhouette coefficient
+predictions = model.transform(output)
+evaluator = ClusteringEvaluator()
+silhouette = evaluator.evaluate(predictions)
+print(silhouette)
 
 def error(point):
     center = clusters.centers[clusters.predict(point)]
