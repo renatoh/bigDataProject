@@ -8,6 +8,7 @@ Created on Mon Jan  4 11:54:19 2021
 
 import re
 from math import sqrt
+from numpy import array
 
 from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
@@ -45,6 +46,9 @@ def parse_apache_log_line(logline):
         content_size  = int(match.group(9))
     )
 
+def error(point, cluster_center):
+    return sqrt(sum([x**2 for x in (point - cluster_center)]))
+
 #train modell (based on REsponde Code and Content Size for simplicity)
 trainingData = sc.textFile('/Users/thomas/Downloads/logstream/apache2.log')\
   .map(parse_apache_log_line)
@@ -55,15 +59,22 @@ kmeans = KMeans().setK(2).setSeed(1)
 model = kmeans.fit(output)
 clusterCenters = model.clusterCenters()
 
+predictions.printSchema()
+
 #check model performacne by means of silhouette coefficient
 predictions = model.transform(output)
 evaluator = ClusteringEvaluator()
 silhouette = evaluator.evaluate(predictions)
 print(silhouette)
+wssse = predictions.select(['response_code','content_size','prediction'])\
+  .rdd.map(lambda line: (array([float(x) for x in line[0:1]]), clusterCenters[line[2]]))\
+  .map(lambda line: error(line[0],line[1]))\
+  .reduce(lambda x, y: x + y)
+print(wssse)
 
-def error(point):
-    center = clusters.centers[clusters.predict(point)]
-    return sqrt(sum([x**2 for x in (point - center)]))
+#def error(point):
+#    center = clusters.centers[clusters.predict(point)]
+#    return sqrt(sum([x**2 for x in (point - center)]))
 
 access_logs = ssc.socketTextStream(SOCKET_HOST, SOCKET_PORT)
 #access_logs = ssc.textFileStream('/Users/thomas/Downloads/logstream/')
@@ -73,7 +84,7 @@ rc_dstream = struc_logs.map(lambda parsed_line: (parsed_line.response_code, 1))
 rc_count = rc_dstream.reduceByKey(lambda x,y: x+y)
 rc_count.pprint(num = 30)
 cluster_dstream = struc_logs.map(lambda parsed_line: (parsed_line.response_code, parsed_line.content_size)) 
-result = cluster_dstream.map(lambda point: error(point))
-result.pprint()
+#result = cluster_dstream.map(lambda point: error(point))
+#result.pprint()
 ssc.start()
 ssc.awaitTermination()
