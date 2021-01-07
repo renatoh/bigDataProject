@@ -2,7 +2,7 @@ import re
 from numpy import array
 from math import sqrt
 
-from pyspark import SparkContext, SparkConf
+from pyspark import SparkContext, SQLContext, SparkConf
 from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.clustering import KMeans, KMeansModel
 import pathlib
@@ -21,6 +21,8 @@ from pythonsrc.LogFileParser import parse_apache_log_line
 conf = SparkConf().setAppName("Log Analyzer")
 
 sc = SparkContext(conf=conf)
+
+sqlContext = SQLContext(sc)
 
 MODEL_LOCATION = '../resources/savedModel'
 
