@@ -23,6 +23,7 @@ sc = SparkContext(conf=conf)
 sqlContext = SQLContext(sc)
 
 MODEL_LOCATION = '../resources/savedModel'
+TRANSFORM_MODEL_LOCATION = '../resources/savedModelTransform'
 
 FILE_TRAINING_DATA = '../resources/10k_train.log'
 
@@ -59,8 +60,11 @@ def train_and_save_model_df(sc_local):
     assembler = VectorAssembler(inputCols=['response_code', 'content_size'] + [encoder.getOutputCol() for encoder in encoders], 
                                 outputCol='features')
     pipeline = Pipeline(stages=indexers + encoders + [assembler])
-    model=pipeline.fit(data)
-    output = model.transform(data)
+    transform_model=pipeline.fit(data)
+    output = transform_model.transform(data)
+    
+    remove_existing_model(TRANSFORM_MODEL_LOCATION)
+    transform_model.save(TRANSFORM_MODEL_LOCATION)
     
     #normalizer = Normalizer(inputCol="features", outputCol="normFeatures", p=1.0)
     #output = normalizer.transform(output)
