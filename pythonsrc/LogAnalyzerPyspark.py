@@ -28,6 +28,7 @@ ssc = StreamingContext(sc, 10)
 sqlContext = SQLContext(sc)
 
 RDD_LOCATION = '../resources/'
+MODEL_LOCATION = '../resources/savedModel'
 
 SOCKET_HOST = '84.20.60.172'
 SOCKET_PORT = 8080
@@ -58,6 +59,9 @@ def calc_error(rdd):
     if wssse.count() > 0:
         wssse.saveAsTextFile(RDD_LOCATION+str(now))
     return wssse
+
+model = KMeansModel.load(MODEL_LOCATION)
+clusterCenters = model.clusterCenters()
 
 access_logs = ssc.socketTextStream(SOCKET_HOST, SOCKET_PORT)
 struc_logs = access_logs.map(lambda line: parse_apache_log_line(line, re))
