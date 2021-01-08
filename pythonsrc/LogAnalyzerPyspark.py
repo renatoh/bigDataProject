@@ -24,7 +24,7 @@ from pythonsrc.LogFileParser import parse_apache_log_line
 
 conf = SparkConf().setAppName("Log Analyzer")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 10)
+ssc = StreamingContext(sc, 60)
 sqlContext = SQLContext(sc)
 
 RDD_LOCATION = '../resources/'
@@ -38,7 +38,7 @@ def error(point, cluster_center):
 
 def calc_error(rdd):
     now = datetime.now()
-    data = trainingData.toDF()
+    data = rdd.toDF()
     
     indexers = [ StringIndexer(inputCol=c, 
                            outputCol="{0}_indexed".format(c)) for c in ['endpoint','method'] ]
