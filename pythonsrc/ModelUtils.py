@@ -65,7 +65,7 @@ def train_and_save_model_df(sc_local):
     #normalizer = Normalizer(inputCol="features", outputCol="normFeatures", p=1.0)
     #output = normalizer.transform(output)
 
-    kmeans = pyspark.ml.clustering.KMeans().setK(2).setSeed(1)
+    kmeans = pyspark.ml.clustering.KMeans().setK(4).setSeed(1)
     model = kmeans.fit(output)
     
     remove_existing_model(MODEL_LOCATION)
