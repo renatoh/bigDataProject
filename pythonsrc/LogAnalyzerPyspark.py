@@ -18,7 +18,7 @@ from pyspark.sql import SQLContext
 from pyspark.ml.feature import VectorAssembler, StringIndexer, OneHotEncoder, Normalizer
 from pyspark.ml.clustering import KMeans, KMeansModel
 from pyspark.ml.evaluation import ClusteringEvaluator
-from pyspark.ml import Pipeline
+from pyspark.ml import Pipeline, PipelineModel
 
 from pythonsrc.LogFileParser import parse_apache_log_line
 
@@ -29,6 +29,7 @@ sqlContext = SQLContext(sc)
 
 RDD_LOCATION = '../resources/'
 MODEL_LOCATION = '../resources/savedModel'
+TRANSFORM_MODEL_LOCATION = '../resources/savedModelTransform'
 
 SOCKET_HOST = '84.20.60.172'
 SOCKET_PORT = 8080
@@ -39,17 +40,8 @@ def error(point, cluster_center):
 def calc_error(rdd):
     now = datetime.now()
     data = rdd.toDF()
-    
-    indexers = [ StringIndexer(inputCol=c, 
-                           outputCol="{0}_indexed".format(c)) for c in ['endpoint','method'] ]
-    encoders = [ OneHotEncoder(inputCol=indexer.getOutputCol(),
-                 outputCol="{0}_encoded".format(indexer.getOutputCol()))
-                 for indexer in indexers ]
-    assembler = VectorAssembler(inputCols=['response_code', 'content_size'] + [encoder.getOutputCol() for encoder in encoders], 
-                                outputCol='features')
-    pipeline = Pipeline(stages=indexers + encoders + [assembler])
-    modelTransform=pipeline.fit(data)
-    output = modelTransform.transform(data)
+
+    output = transform_model.transform(data)
     predictions = model.transform(output)
   
     wssse = predictions.select(['features','prediction'])\
@@ -61,6 +53,7 @@ def calc_error(rdd):
     return wssse
 
 model = KMeansModel.load(MODEL_LOCATION)
+transform_model = PipelineModel.load(TRANSFORM_MODEL_LOCATION)
 clusterCenters = model.clusterCenters()
 
 access_logs = ssc.socketTextStream(SOCKET_HOST, SOCKET_PORT)
