@@ -28,6 +28,10 @@ output.elasticsearch:
       when.equals:
         fields.type: "access_log"
 
+    - index: "loganomalies"
+      when.equals:
+        fields.type: "application_log"
+
 ##The following lines are needed in order to set up different indices
 setup.ilm.enabled: false
 

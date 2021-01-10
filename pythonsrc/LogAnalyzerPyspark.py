@@ -11,6 +11,7 @@ from math import sqrt
 from numpy import array
 from datetime import datetime
 
+from pythonsrc.AppLogger import get_logger
 from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
 from pyspark.sql import Row
@@ -49,6 +50,8 @@ def calc_error(rdd):
       .map(lambda line: error(line[0],clusterCenters[line[1]]))\
       .filter(lambda x: x > 125100.0)
     if wssse.count() > 0:
+        #TODO log when anomaly is detected
+        get_logger().warning('log anomaly here')
         wssse.saveAsTextFile(RDD_LOCATION+str(now))
     return wssse
 
