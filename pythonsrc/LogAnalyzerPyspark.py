@@ -50,7 +50,8 @@ def calc_error(rdd):
       .map(lambda line: (error(line.features,clusterCenters[line.prediction]), line.response_code, line.endpoint, line.method, line.content_size))\
       .filter(lambda x: x[0] > 125100.0)
     if wssse.count() > 0:
-        get_logger().warning(wssse.collect())
+        for line in wssse.collect():
+            get_logger().warning(line)
     return wssse
 
 model = KMeansModel.load(MODEL_LOCATION)
