@@ -1,0 +1,161 @@
+---
+
+# configuration file of single log pattern
+
+# name of log
+name: apache_common
+
+# if true this pattern is enabled and it will be used
+enabled: true
+
+# path where store the log. If the path doesn't exist will be created
+path: /Users/renato/elastic/logs/apache.log
+
+# remove log file before use it
+remove_file: false
+
+# event per seconds for this pattern, default 1
+# if specified this value overwrite the common one
+eps: 5
+
+# eps correction percentage, default 1.2
+correction: 1.2
+
+# time period in seconds. This value says how many seconds of logs will be generate
+time_period: 86400
+
+# generator types:
+# - raw: it gets raw logs from examples and uses them to make logging
+# - template: it uses a template to generate logs
+#           (https://docs.python.org/3/library/string.html#custom-string-formatting)
+
+generator_type: template
+
+# logs of example, to use as documentation or use for random generator in raw generator type
+examples:
+  - 127.0.0.1 - frank [10/Oct/2000:13:55:36 -0700] "GET /apache_pb.gif HTTP/1.0" 200 2326
+
+# log template to random generator
+# for replace the timestamp use this table:
+# https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
+# You can use more than one template
+template:
+  - '{ipaddress} - {user} {:[%d/%b/%Y:%H:%M:%S %z]} "{http_method} {http_request} HTTP/1.0" {http_status_code:d} {http_bytes:d}'
+  - '{ipaddress} - - {:[%d/%b/%Y:%H:%M:%S %z]} "{http_method} {http_request} HTTP/1.0" {http_status_code:d} {http_bytes:d}'
+
+fields:
+  ipaddress: func_randip
+  user:
+    - lb1
+    - lb2
+  http_method:
+    - GET
+    - POST
+  http_request:
+    - /
+    - /index.html
+    - /forum
+    - /blog
+    - /login-page
+    - /news
+    - /contact
+    - /
+    - /index.html
+    - /forum
+    - /blog
+    - /login-page
+    - /news
+    - /contact
+    - /
+    - /index.html
+    - /forum
+    - /blog
+    - /login-page
+    - /news
+    - /contact
+    - /
+    - /index.html
+    - /forum
+    - /blog
+    - /login-page
+    - /news
+    - /contact
+    - /my-account
+
+  http_status_code:
+    - 200
+    - 301
+    - 200
+    - 302
+    - 200
+    - 201
+    - 200
+    - 200
+    - 200
+    - 200
+    - 200
+    - 301
+    - 200
+    - 302
+    - 200
+    - 201
+    - 200
+    - 200
+    - 200
+    - 200
+    - 301
+    - 200
+    - 302
+    - 200
+    - 201
+    - 200
+    - 200
+    - 200
+    - 200
+    - 202
+    - 200
+    - 302
+    - 200
+    - 201
+    - 200
+    - 200
+    - 200
+    - 500
+    - 301
+    - 200
+    - 302
+    - 200
+    - 201
+    - 200
+    - 200
+    - 200
+    - 200
+    - 200
+    - 301
+    - 200
+    - 302
+    - 200
+    - 201
+    - 200
+    - 200
+    - 200
+    - 200
+    - 301
+    - 200
+    - 302
+    - 200
+    - 201
+    - 200
+    - 200
+    - 200
+    - 200
+    - 202
+    - 200
+    - 302
+    - 200
+    - 201
+    - 200
+    - 200
+    - 200
+    - 501
+  http_bytes: func_randint 0 1048576
