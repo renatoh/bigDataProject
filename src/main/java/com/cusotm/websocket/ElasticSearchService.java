@@ -69,7 +69,7 @@ public class ElasticSearchService {
 
             String jsonString = gson.toJson(queryDTO);
 
-            jsonString = "{  \"query\": {    \"range\": {      \"event.ingested\": {            \"gte\" : \"now-" + timeWindowInS + "s\",            \"lt\" :  \"now\"          }    }  }}";
+            jsonString = "{ \"size\":500,  \"query\": {    \"range\": {      \"event.ingested\": {            \"gte\" : \"now-" + timeWindowInS + "s\",            \"lt\" :  \"now\"          }    }  }}";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(URL))
