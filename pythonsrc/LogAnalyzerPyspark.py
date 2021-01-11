@@ -45,14 +45,12 @@ def calc_error(rdd):
     output = transform_model.transform(data)
     predictions = model.transform(output)
   
-    wssse = predictions.select(['features','prediction'])\
+    wssse = predictions.select(['content_size','endpoint','method','response_code','features','prediction'])\
       .rdd\
-      .map(lambda line: error(line[0],clusterCenters[line[1]]))\
-      .filter(lambda x: x > 125100.0)
+      .map(lambda line: (error(line.features,clusterCenters[line.prediction]), line.response_code, line.endpoint, line.method, line.content_size))\
+      .filter(lambda x: x[0] > 125100.0)
     if wssse.count() > 0:
-        #TODO log when anomaly is detected
-        get_logger().warning('log anomaly here')
-        wssse.saveAsTextFile(RDD_LOCATION+str(now))
+        get_logger().warning(wssse.collect())
     return wssse
 
 model = KMeansModel.load(MODEL_LOCATION)
