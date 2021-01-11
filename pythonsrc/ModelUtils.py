@@ -53,7 +53,7 @@ def train_and_save_model_df(sc_local):
     data = trainingData.toDF()
     
     indexers = [ StringIndexer(inputCol=c, 
-                           outputCol="{0}_indexed".format(c)) for c in ['endpoint','method'] ]
+                           outputCol="{0}_indexed".format(c), handleInvalid="keep") for c in ['endpoint','method'] ]
     encoders = [ OneHotEncoder(inputCol=indexer.getOutputCol(),
                  outputCol="{0}_encoded".format(indexer.getOutputCol()))
                  for indexer in indexers ]
