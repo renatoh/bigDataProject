@@ -36,7 +36,7 @@ SOCKET_HOST = '84.20.60.172'
 SOCKET_PORT = 8080
 
 def error(point, cluster_center):
-    return sqrt(sum([x**2 for x in (point - cluster_center)]))
+    return round(sqrt(sum([x**2 for x in (point - cluster_center)])))
 
 def calc_error(rdd):
     now = datetime.now()
