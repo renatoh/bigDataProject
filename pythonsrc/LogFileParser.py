@@ -11,7 +11,7 @@ def parse_apache_log_line(logline,re):
         client_identd = match.group(2),
         user_id       = match.group(3),
         date = (match.group(4)[:-6]).split(":", 1)[0],
-        time = (match.group(4)[:-6]).split(":", 1)[1],
+        time = (match.group(4)[:-1]).split(":", 1)[1],
         method        = match.group(5),
         endpoint      = match.group(6),
         protocol      = match.group(7),
