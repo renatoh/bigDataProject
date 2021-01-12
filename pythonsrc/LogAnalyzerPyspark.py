@@ -45,10 +45,10 @@ def calc_error(rdd):
     output = transform_model.transform(data)
     predictions = model.transform(output)
   
-    wssse = predictions.select(['content_size','endpoint','method','response_code','features','prediction'])\
+    wssse = predictions.select(['endpoint','method','response_code','features','prediction'])\
       .rdd\
-      .map(lambda line: (error(line.features,clusterCenters[line.prediction]), line.response_code, line.endpoint, line.method, line.content_size))\
-      .filter(lambda x: x[0] > 125100.0)
+      .map(lambda line: (error(line.features,clusterCenters[line.prediction]), line.response_code, line.endpoint, line.method))\
+      .filter(lambda x: x[0] > 100.0)
     if wssse.count() > 0:
         for line in wssse.collect():
             get_logger().warning(line)
