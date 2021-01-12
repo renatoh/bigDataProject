@@ -57,7 +57,7 @@ def train_and_save_model_df(sc_local):
     encoders = [ OneHotEncoder(inputCol=indexer.getOutputCol(),
                  outputCol="{0}_encoded".format(indexer.getOutputCol()))
                  for indexer in indexers ]
-    assembler = VectorAssembler(inputCols=['response_code', 'content_size'] + [encoder.getOutputCol() for encoder in encoders], 
+    assembler = VectorAssembler(inputCols=['response_code'] + [encoder.getOutputCol() for encoder in encoders], 
                                 outputCol='features')
     pipeline = Pipeline(stages=indexers + encoders + [assembler])
     transform_model=pipeline.fit(data)
@@ -66,10 +66,10 @@ def train_and_save_model_df(sc_local):
     remove_existing_model(TRANSFORM_MODEL_LOCATION)
     transform_model.save(TRANSFORM_MODEL_LOCATION)
     
-    #normalizer = Normalizer(inputCol="features", outputCol="normFeatures", p=1.0)
-    #output = normalizer.transform(output)
+    normalizer = Normalizer(inputCol="features", outputCol="normFeatures", p=1.0)
+    output = normalizer.transform(output)
 
-    kmeans = pyspark.ml.clustering.KMeans().setK(4).setSeed(1)
+    kmeans = pyspark.ml.clustering.KMeans().setK(2).setSeed(1)
     model = kmeans.fit(output)
     
     remove_existing_model(MODEL_LOCATION)
