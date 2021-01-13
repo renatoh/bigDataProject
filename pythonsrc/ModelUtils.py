@@ -49,7 +49,7 @@ def load_saved_model(sc_local, path):
 
 def train_and_save_model_df(sc_local):
     trainingData = sc_local.textFile(FILE_TRAINING_DATA) \
-        .map(lambda line: parse_apache_log_line(line, re)) 
+        .flatMap(lambda line: parse_apache_log_line(line))
     data = trainingData.toDF()
     
     indexers = [ StringIndexer(inputCol=c, 
